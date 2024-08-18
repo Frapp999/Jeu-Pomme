@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu de Pomme</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            font-size: 24px;
+        }
+        #pomme {
+            cursor: pointer;
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <img id="pomme" src="pomme.png" alt="Pomme" />
+    
+    <script>
+        let score = 0;
+        const scoreElement = document.getElementById('score');
+        const pommeElement = document.getElementById('pomme');
+
+        pommeElement.addEventListener('click', function() {
+            // Incrémente le score
+            score++;
+            scoreElement.textContent = 'Score: ' + score;
+
+            // Cache l'image de la pomme
+            pommeElement.style.display = 'none';
+
+            // La réaffiche après 5 secondes
+            setTimeout(function() {
+                pommeElement.style.display = 'block';
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
