@@ -23,33 +23,63 @@
             top: 20px;
             font-size: 24px;
         }
-        #pomme {
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            width: 300px;
+            height: 300px;
+            gap: 10px;
+        }
+        .grid-item {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pomme {
             cursor: pointer;
             width: 100px;
+            transition: opacity 0.5s;
         }
     </style>
 </head>
 <body>
     <div id="score">Score: 0</div>
-    <img id="pomme" src="pomme.png" alt="Pomme" />
+    <div id="grid-container">
+        <div class="grid-item" data-index="0"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
+        <div class="grid-item" data-index="1"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
+        <div class="grid-item" data-index="2"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
+        <div class="grid-item" data-index="3"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
+        <div class="grid-item" data-index="4"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
+        <div class="grid-item" data-index="5"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
+        <div class="grid-item" data-index="6"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
+        <div class="grid-item" data-index="7"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
+        <div class="grid-item" data-index="8"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
+    </div>
     
     <script>
         let score = 0;
         const scoreElement = document.getElementById('score');
-        const pommeElement = document.getElementById('pomme');
+        const gridItems = document.querySelectorAll('.grid-item');
 
-        pommeElement.addEventListener('click', function() {
-            // Incrémente le score
-            score++;
-            scoreElement.textContent = 'Score: ' + score;
+        gridItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Incrémente le score
+                score++;
+                scoreElement.textContent = 'Score: ' + score;
 
-            // Cache l'image de la pomme
-            pommeElement.style.display = 'none';
+                // Sélectionne l'image de pomme à l'intérieur de l'élément cliqué
+                const pomme = this.querySelector('.pomme');
 
-            // La réaffiche après 5 secondes
-            setTimeout(function() {
-                pommeElement.style.display = 'block';
-            }, 500);
+                // Cache la pomme cliquée
+                pomme.style.opacity = '0';
+
+                // La réaffiche après 500 millisecondes
+                setTimeout(() => {
+                    pomme.style.opacity = '1';
+                }, 500);
+            });
         });
     </script>
 </body>
