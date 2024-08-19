@@ -238,6 +238,7 @@
         <button id="shop">Magasin</button>
     </div>
 
+
     <div id="shop-screen" style="display: none;">
         <h1>Magasin</h1>
         <div id="total-apples-shop">
@@ -312,7 +313,7 @@
             localStorage.setItem('totalApples', newTotal);
         }
 
-        // Initialisation
+        // Initialiser le jeu
         const username = getUsername();
         let bestScore = getBestScore();
         let totalApples = getTotalApples();
@@ -322,12 +323,38 @@
         totalApplesStartElement.textContent = totalApples;
         totalApplesShopElement.textContent = totalApples;
 
+        // Mettre à jour l'écran de démarrage pour la première fois
+        updateStartScreen();
+
+
         // Mise à jour de l'écran de démarrage
         function updateStartScreen() {
+            const bestScoreFromStorage = getBestScore(); // Lire le meilleur score du localStorage
             document.getElementById('user-info-start').textContent = `Nom: ${username}`;
-            document.getElementById('best-score-start').textContent = `Best Score: ${bestScore}`;
+            document.getElementById('best-score-start').textContent = `Best Score: ${bestScoreFromStorage}`;
             document.getElementById('total-apples-count-start').textContent = totalApples;
         }
+
+        // Appeler updateStartScreen quand on revient à l'écran de démarrage
+        quitButton.addEventListener('click', function() {
+            // Réinitialiser le score à 0
+            score = 0;
+            scoreElement.textContent = 'Score: ' + score;
+        
+            // Afficher l'écran de démarrage
+            startScreen.style.display = 'flex';
+        
+            // Cacher l'écran "Game Over"
+            gameOverElement.style.display = 'none';
+        
+            // Mettre à jour l'écran de démarrage
+            updateStartScreen();
+
+            // Assurer que la couleur de fond est noire
+            document.body.style.backgroundColor = 'black';
+        });
+
+
 
         // Mise à jour de l'écran du magasin
         function updateShopScreen() {
@@ -465,12 +492,14 @@
             gameOverElement.style.display = 'flex';
             finalScoreElement.textContent = 'Score Final: ' + score;
 
-            // Vérifier si c'est le meilleur score
-            if (score > bestScore) {
-                bestScore = score;
-                setBestScore(bestScore);
-                bestScoreElement.textContent = `Best Score: ${bestScore}`;
-            }
+           // Vérifier si c'est le meilleur score
+           if (score > bestScore) {
+               bestScore = score;
+               setBestScore(bestScore);
+               bestScoreElement.textContent = `Best Score: ${bestScore}`;
+               // Mettre à jour aussi l'écran de démarrage
+               updateStartScreen();
+           }
 
             // Mettre à jour le total des pommes
             totalApples += score;
