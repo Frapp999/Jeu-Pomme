@@ -236,7 +236,9 @@
         </div>
         <button id="play">Play</button>
         <button id="shop">Magasin</button>
+        <button id="reset-best-score">Score 0</button> <!-- Nouveau bouton -->
     </div>
+
 
     <div id="shop-screen" style="display: none;">
         <h1>Magasin</h1>
@@ -501,6 +503,18 @@
             // Démarrer le minuteur pour les bombes
             bombInterval = setInterval(randomizeBombs, 2000);
         }
+		
+		// Fonction pour réinitialiser le meilleur score
+        function resetBestScore() {
+            setBestScore(0);  // Réinitialiser le meilleur score à 0
+            bestScore = 0;
+            bestScoreElement.textContent = `Best Score: ${bestScore}`;
+            updateStartScreen(); // Mettre à jour l'écran de démarrage
+        }
+
+        // Ajouter un gestionnaire d'événements pour le bouton
+        document.getElementById('reset-best-score').addEventListener('click', resetBestScore);
+
 
         
 
