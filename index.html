@@ -187,6 +187,7 @@
     <script>
         let score = 0;
         let bombIndexes = [];
+        let bombInterval = null; // Déclaration du minuteur
         const scoreElement = document.getElementById('score');
         const userInfoElement = document.getElementById('user-info');
         const bestScoreElement = document.getElementById('best-score');
@@ -248,6 +249,7 @@
 
         // Fonction pour transformer 3 pommes en bombes aléatoirement
         function randomizeBombs() {
+            // Réinitialiser les anciennes bombes
             bombIndexes.forEach(index => {
                 const imgElement = gridItems[index].querySelector('img');
                 imgElement.src = 'pomme.png';
@@ -328,6 +330,7 @@
             totalApplesElement.textContent = totalApples;
 
             clearInterval(bombInterval);
+            bombInterval = null; // Réinitialiser le minuteur
         }
 
         // Fonction de redémarrage du jeu
@@ -336,6 +339,11 @@
             scoreElement.textContent = 'Score: ' + score;
             gameOverElement.style.display = 'none';
             randomizeBombs();
+
+            // Redémarrer le minuteur seulement si ce n'est pas déjà en cours
+            if (bombInterval) {
+                clearInterval(bombInterval);
+            }
             bombInterval = setInterval(randomizeBombs, 2000); // 2 secondes
         }
 
@@ -344,6 +352,9 @@
             gameOverElement.style.display = 'none';
             startScreen.style.display = 'flex';
             updateStartScreen(); // Met à jour les infos de l'écran de démarrage
+
+            clearInterval(bombInterval); // Assurer que le minuteur est arrêté
+            bombInterval = null; // Réinitialiser le minuteur
         }
 
         // Fonction pour démarrer le jeu
@@ -352,6 +363,11 @@
             score = 0; // Réinitialiser le score
             scoreElement.textContent = 'Score: ' + score;
             randomizeBombs();
+
+            // Démarrer le minuteur seulement si ce n'est pas déjà en cours
+            if (bombInterval) {
+                clearInterval(bombInterval);
+            }
             bombInterval = setInterval(randomizeBombs, 2000); // 2 secondes
         }
 
@@ -360,9 +376,8 @@
         quitButton.addEventListener('click', quitGame);
         playButton.addEventListener('click', startGame);
 
-        // Initialiser le premier set de bombes et démarrer le timer
+        // Initialiser le premier set de bombes
         randomizeBombs();
-        var bombInterval = setInterval(randomizeBombs, 2000); // 2 secondes
     </script>
 </body>
 </html>
