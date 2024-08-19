@@ -17,8 +17,9 @@
             flex-direction: column;
             color: white;
             font-family: Arial, sans-serif;
+            position: relative;
         }
-        #user-info, #best-score {
+        #user-info, #best-score, #total-apples {
             position: absolute;
             top: 20px;
             font-size: 24px;
@@ -29,9 +30,21 @@
         #best-score {
             right: 20px;
         }
+        #total-apples {
+            right: 20px;
+            top: 60px;
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+        }
+        #total-apples img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
         #score {
             position: absolute;
-            top: 60px;
+            top: 100px;
             font-size: 24px;
         }
         #grid-container {
@@ -47,10 +60,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: #333;
+            border-radius: 10px;
         }
-        .pomme, .bombe {
+        .grid-item img {
+            width: 80%;
+            height: 80%;
             cursor: pointer;
-            width: 100px;
             transition: opacity 0.5s;
         }
         #game-over {
@@ -60,13 +76,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: black;
+            background-color: rgba(0, 0, 0, 0.9);
             color: red;
             font-size: 48px;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             text-align: center;
+            z-index: 10;
         }
         #restart {
             margin-top: 20px;
@@ -78,11 +95,33 @@
             border: none;
             border-radius: 5px;
         }
+        /* Animation pour le +1 */
+        @keyframes flyUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+        .plus-one {
+            position: absolute;
+            color: yellow;
+            font-size: 20px;
+            animation: flyUp 1s ease-out forwards;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
     <div id="user-info"></div>
     <div id="best-score"></div>
+    <div id="total-apples">
+        <img src="pomme.png" alt="Pomme">
+        <span id="total-apples-count">0</span>
+    </div>
     <div id="score">Score: 0</div>
     <div id="grid-container">
         <div class="grid-item" data-index="0"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
@@ -108,6 +147,7 @@
         const scoreElement = document.getElementById('score');
         const userInfoElement = document.getElementById('user-info');
         const bestScoreElement = document.getElementById('best-score');
+        const totalApplesElement = document.getElementById('total-apples-count');
         const gridItems = document.querySelectorAll('.grid-item');
         const gameOverElement = document.getElementById('game-over');
         const finalScoreElement = document.getElementById('final-score');
@@ -136,18 +176,30 @@
             localStorage.setItem('bestScore', newBestScore);
         }
 
+        // Fonction pour obtenir ou définir le total des pommes
+        function getTotalApples() {
+            return parseInt(localStorage.getItem('totalApples')) || 0;
+        }
+
+        function setTotalApples(newTotal) {
+            localStorage.setItem('totalApples', newTotal);
+        }
+
         // Initialisation
         const username = getUsername();
-        let bestScore = getBestScore(); // Utilisation d'un "let" pour pouvoir le modifier
+        let bestScore = getBestScore();
+        let totalApples = getTotalApples();
         userInfoElement.textContent = `Nom: ${username}`;
         bestScoreElement.textContent = `Best Score: ${bestScore}`;
+        totalApplesElement.textContent = totalApples;
 
         // Fonction pour transformer 3 pommes en bombes aléatoirement
         function randomizeBombs() {
             bombIndexes.forEach(index => {
-                gridItems[index].querySelector('img').src = 'pomme.png';
-                gridItems[index].querySelector('img').classList.remove('bombe');
-                gridItems[index].querySelector('img').classList.add('pomme');
+                const imgElement = gridItems[index].querySelector('img');
+                imgElement.src = 'pomme.png';
+                imgElement.classList.remove('bombe');
+                imgElement.classList.add('pomme');
             });
 
             bombIndexes = [];
@@ -178,6 +230,24 @@
                     score++;
                     scoreElement.textContent = 'Score: ' + score;
 
+                    // Créer l'élément +1
+                    const plusOne = document.createElement('div');
+                    plusOne.textContent = '+1';
+                    plusOne.classList.add('plus-one');
+                    item.appendChild(plusOne);
+
+                    // Positionner le +1 au-dessus de la pomme cliquée
+                    const rect = imgElement.getBoundingClientRect();
+                    const xOffset = (rect.width - plusOne.clientWidth) / 2;
+                    const yOffset = -rect.height / 2;
+                    plusOne.style.left = xOffset + 'px';
+                    plusOne.style.top = yOffset + 'px';
+
+                    // Supprimer l'élément après l'animation
+                    setTimeout(() => {
+                        plusOne.remove();
+                    }, 1000);
+
                     // Masquer la pomme cliquée
                     imgElement.style.opacity = '0';
                     setTimeout(() => {
@@ -194,10 +264,15 @@
 
             // Vérifier si c'est le meilleur score
             if (score > bestScore) {
-                bestScore = score; // Met à jour la variable bestScore
+                bestScore = score;
                 setBestScore(bestScore);
                 bestScoreElement.textContent = `Best Score: ${bestScore}`;
             }
+
+            // Mettre à jour le total des pommes
+            totalApples += score;
+            setTotalApples(totalApples);
+            totalApplesElement.textContent = totalApples;
 
             clearInterval(bombInterval);
         }
