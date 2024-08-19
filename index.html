@@ -95,7 +95,7 @@
             border: none;
             border-radius: 5px;
         }
-        #start-screen {
+        #start-screen, #shop-screen {
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -108,11 +108,11 @@
             background-color: rgba(0, 0, 0, 0.9);
             z-index: 100;
         }
-        #start-screen h1 {
+        #start-screen h1, #shop-screen h1 {
             font-size: 48px;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
-        #start-screen button {
+        #start-screen button, #shop-screen button {
             padding: 10px 20px;
             font-size: 24px;
             cursor: pointer;
@@ -120,13 +120,66 @@
             color: black;
             border: none;
             border-radius: 5px;
+            margin: 10px 0; /* Ajoutez cette ligne pour espacer les boutons verticalement */
         }
-        #total-apples-start img {
-            width: 24px;
-            height: 24px;
+        #total-apples-start, #total-apples-shop {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        #total-apples-start img, #total-apples-shop img {
+            width: 16px;
+            height: 16px;
             margin-right: 8px;
         }
-        /* Animation pour le +1 */
+        .shop-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            background-color: #444;
+            border: 2px solid white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        .shop-button img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+        .alert {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: red;
+            font-size: 24px;
+            justify-content: center;
+            align-items: center;
+            display: none;
+            text-align: center;
+            z-index: 20;
+        }
+        .alert button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: white;
+            color: black;
+            border: none;
+            border-radius: 5px;
+        }
+        /* Animation pour le +1 et +10 */
         @keyframes flyUp {
             0% {
                 opacity: 1;
@@ -170,7 +223,7 @@
         <div>Game Over</div>
         <div id="final-score"></div>
         <button id="restart">Restart</button>
-        <button id="quit">Quitter</button>
+        <button id="quit">Retour</button>
     </div>
 
     <div id="start-screen">
@@ -182,16 +235,37 @@
             <span id="total-apples-count-start">0</span>
         </div>
         <button id="play">Play</button>
+        <button id="shop">Magasin</button>
+    </div>
+
+    <div id="shop-screen" style="display: none;">
+        <h1>Magasin</h1>
+        <div id="total-apples-shop">
+            <img src="pomme.png" alt="Pomme">
+            <span id="total-apples-count-shop">0</span>
+        </div>
+        <div class="shop-button" id="buy-aubergine">
+            <img src="aubergine.png" alt="Aubergine">
+            <div>Acheter pour<br>10 000</div>
+        </div>
+        <button id="back-to-menu">Retour</button>
+        <div class="alert" id="alert-message">
+            <div>Pas assez de pommes pour acheter l'aubergine.</div>
+            <button id="alert-ok">OK</button>
+        </div>
     </div>
 
     <script>
         let score = 0;
         let bombIndexes = [];
         let bombInterval = null; // Déclaration du minuteur
+        let hasAubergine = false; // Vérifie si l'aubergine a été achetée
         const scoreElement = document.getElementById('score');
         const userInfoElement = document.getElementById('user-info');
         const bestScoreElement = document.getElementById('best-score');
         const totalApplesElement = document.getElementById('total-apples-count');
+        const totalApplesStartElement = document.getElementById('total-apples-count-start');
+        const totalApplesShopElement = document.getElementById('total-apples-count-shop');
         const gridItems = document.querySelectorAll('.grid-item');
         const gameOverElement = document.getElementById('game-over');
         const finalScoreElement = document.getElementById('final-score');
@@ -199,6 +273,12 @@
         const quitButton = document.getElementById('quit');
         const startScreen = document.getElementById('start-screen');
         const playButton = document.getElementById('play');
+        const shopButton = document.getElementById('shop');
+        const shopScreen = document.getElementById('shop-screen');
+        const buyAubergineButton = document.getElementById('buy-aubergine');
+        const backToMenuButton = document.getElementById('back-to-menu');
+        const alertMessage = document.getElementById('alert-message');
+        const alertOkButton = document.getElementById('alert-ok');
 
         // Fonction pour obtenir ou définir l'username
         function getUsername() {
@@ -239,12 +319,19 @@
         userInfoElement.textContent = `Nom: ${username}`;
         bestScoreElement.textContent = `Best Score: ${bestScore}`;
         totalApplesElement.textContent = totalApples;
+        totalApplesStartElement.textContent = totalApples;
+        totalApplesShopElement.textContent = totalApples;
 
         // Mise à jour de l'écran de démarrage
         function updateStartScreen() {
             document.getElementById('user-info-start').textContent = `Nom: ${username}`;
             document.getElementById('best-score-start').textContent = `Best Score: ${bestScore}`;
             document.getElementById('total-apples-count-start').textContent = totalApples;
+        }
+
+        // Mise à jour de l'écran du magasin
+        function updateShopScreen() {
+            totalApplesShopElement.textContent = totalApples;
         }
 
         // Fonction pour transformer 3 pommes en bombes aléatoirement
@@ -308,9 +395,64 @@
                     setTimeout(() => {
                         imgElement.style.opacity = '1';
                     }, 500);
+
+                    // Si l'aubergine a été achetée, gérer les aubergines aléatoires
+                    if (hasAubergine) {
+                        randomizeAubergines();
+                    }
                 }
             });
         });
+
+        // Fonction pour gérer les aubergines
+        function randomizeAubergines() {
+            // Supprimer les aubergines existantes
+            document.querySelectorAll('.aubergine').forEach(el => el.remove());
+
+            // Ajouter de 0 à 3 aubergines aléatoires
+            const aubergineCount = Math.floor(Math.random() * 4);
+            for (let i = 0; i < aubergineCount; i++) {
+                let index;
+                do {
+                    index = Math.floor(Math.random() * 9);
+                } while (bombIndexes.includes(index));
+
+                const item = gridItems[index];
+                const aubergine = document.createElement('img');
+                aubergine.src = 'aubergine.png';
+                aubergine.classList.add('aubergine');
+                aubergine.style.width = '80%';
+                aubergine.style.height = '80%';
+                aubergine.style.cursor = 'pointer';
+                item.appendChild(aubergine);
+
+                aubergine.addEventListener('click', function() {
+                    // Ajouter 10 points et supprimer l'aubergine
+                    score += 10;
+                    scoreElement.textContent = 'Score: ' + score;
+
+                    // Créer l'élément +10
+                    const plusTen = document.createElement('div');
+                    plusTen.textContent = '+10';
+                    plusTen.classList.add('plus-one');
+                    item.appendChild(plusTen);
+
+                    // Positionner le +10 au-dessus de l'aubergine cliquée
+                    const rect = aubergine.getBoundingClientRect();
+                    const xOffset = (rect.width - plusTen.clientWidth) / 2;
+                    const yOffset = -rect.height / 2;
+                    plusTen.style.left = xOffset + 'px';
+                    plusTen.style.top = yOffset + 'px';
+
+                    // Supprimer l'élément après l'animation
+                    setTimeout(() => {
+                        plusTen.remove();
+                    }, 1000);
+
+                    aubergine.remove();
+                });
+            }
+        }
 
         // Fonction Game Over
         function gameOver() {
@@ -340,44 +482,74 @@
             gameOverElement.style.display = 'none';
             randomizeBombs();
 
-            // Redémarrer le minuteur seulement si ce n'est pas déjà en cours
-            if (bombInterval) {
-                clearInterval(bombInterval);
+            // Redémarrer le minuteur pour les bombes
+            if (!bombInterval) {
+                bombInterval = setInterval(randomizeBombs, 3000);
             }
-            bombInterval = setInterval(randomizeBombs, 2000); // 2 secondes
         }
 
-        // Fonction pour revenir au menu principal
-        function quitGame() {
-            gameOverElement.style.display = 'none';
-            startScreen.style.display = 'flex';
-            updateStartScreen(); // Met à jour les infos de l'écran de démarrage
-
-            clearInterval(bombInterval); // Assurer que le minuteur est arrêté
-            bombInterval = null; // Réinitialiser le minuteur
-        }
-
-        // Fonction pour démarrer le jeu
-        function startGame() {
-            startScreen.style.display = 'none';
-            score = 0; // Réinitialiser le score
-            scoreElement.textContent = 'Score: ' + score;
-            randomizeBombs();
-
-            // Démarrer le minuteur seulement si ce n'est pas déjà en cours
-            if (bombInterval) {
-                clearInterval(bombInterval);
-            }
-            bombInterval = setInterval(randomizeBombs, 2000); // 2 secondes
-        }
-
-        // Associer les boutons aux fonctions
         restartButton.addEventListener('click', restartGame);
-        quitButton.addEventListener('click', quitGame);
-        playButton.addEventListener('click', startGame);
 
-        // Initialiser le premier set de bombes
+        // Fonction pour quitter le jeu
+        quitButton.addEventListener('click', function() {
+            // Réinitialiser le score à 0
+            score = 0;
+            scoreElement.textContent = 'Score: ' + score;
+
+            // Afficher l'écran de démarrage
+            startScreen.style.display = 'flex';
+
+            // Cacher l'écran "Game Over"
+            gameOverElement.style.display = 'none';
+
+            // Assurer que la couleur de fond est noire
+            document.body.style.backgroundColor = 'black';
+        });
+
+
+
+        // Fonction pour afficher l'écran de jeu
+        function showGameScreen() {
+            startScreen.style.display = 'none';
+            gameOverElement.style.display = 'none';
+            document.body.style.backgroundColor = 'black'; // Assure que la couleur de fond est noire
+        }
+
+        // Fonction pour afficher l'écran de magasin
+        function showShopScreen() {
+            startScreen.style.display = 'none';
+            shopScreen.style.display = 'flex';
+            updateShopScreen();
+        }
+
+        playButton.addEventListener('click', showGameScreen);
+        shopButton.addEventListener('click', showShopScreen);
+
+        backToMenuButton.addEventListener('click', function() {
+            shopScreen.style.display = 'none';
+            startScreen.style.display = 'flex';
+            updateStartScreen();
+        });
+
+        buyAubergineButton.addEventListener('click', function() {
+            if (totalApples >= 10000) {
+                totalApples -= 10000;
+                setTotalApples(totalApples);
+                totalApplesShopElement.textContent = totalApples;
+                hasAubergine = true;
+                alert('Aubergine achetée avec succès !');
+            } else {
+                alertMessage.style.display = 'flex';
+            }
+        });
+
+        alertOkButton.addEventListener('click', function() {
+            alertMessage.style.display = 'none';
+        });
+
+        // Initialiser le jeu
         randomizeBombs();
+        bombInterval = setInterval(randomizeBombs, 3000);
     </script>
 </body>
 </html>
