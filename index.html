@@ -339,26 +339,32 @@
             // Réinitialiser les anciennes bombes
             bombIndexes.forEach(index => {
                 const imgElement = gridItems[index].querySelector('img');
-                imgElement.src = 'pomme.png';
-                imgElement.classList.remove('bombe');
-                imgElement.classList.add('pomme');
+                imgElement.src = 'pomme.png';  // Remettre l'image de la pomme
+                imgElement.classList.remove('bombe');  // Enlever la classe bombe
+                imgElement.classList.add('pomme');  // Ajouter la classe pomme
             });
 
-            bombIndexes = [];
+            bombIndexes = [];  // Réinitialiser les indices des bombes
+
+            // Ajouter 3 nouvelles bombes aléatoires
             while (bombIndexes.length < 3) {
-                const randomIndex = Math.floor(Math.random() * 9);
+                const randomIndex = Math.floor(Math.random() * gridItems.length);  // Utiliser la taille dynamique
                 if (!bombIndexes.includes(randomIndex)) {
-                    bombIndexes.push(randomIndex);
+                    bombIndexes.push(randomIndex);  // Ajouter l'index de la bombe
                 }
             }
 
+            // Mettre à jour les nouvelles bombes
             bombIndexes.forEach(index => {
                 const imgElement = gridItems[index].querySelector('img');
-                imgElement.src = 'bombe.png';
-                imgElement.classList.remove('pomme');
-                imgElement.classList.add('bombe');
+                imgElement.src = 'bombe.png';  // Mettre l'image de la bombe
+                imgElement.classList.remove('pomme');  // Enlever la classe pomme
+                imgElement.classList.add('bombe');  // Ajouter la classe bombe
             });
         }
+
+
+
 
         // Fonction pour gérer le clic sur les pommes/bombes
         gridItems.forEach((item, index) => {
@@ -471,8 +477,11 @@
             setTotalApples(totalApples);
             totalApplesElement.textContent = totalApples;
 
-            clearInterval(bombInterval);
-            bombInterval = null; // Réinitialiser le minuteur
+            // Arrêter le minuteur pour les bombes
+            if (bombInterval) {
+                clearInterval(bombInterval);
+                bombInterval = null;
+            }
         }
 
         // Fonction de redémarrage du jeu
@@ -480,13 +489,21 @@
             score = 0;
             scoreElement.textContent = 'Score: ' + score;
             gameOverElement.style.display = 'none';
+    
+            // Réinitialiser les bombes
             randomizeBombs();
-
-            // Redémarrer le minuteur pour les bombes
-            if (!bombInterval) {
-                bombInterval = setInterval(randomizeBombs, 3000);
+    
+            // Nettoyer l'ancien intervalle si existant
+            if (bombInterval) {
+                clearInterval(bombInterval);
             }
+    
+            // Démarrer le minuteur pour les bombes
+            bombInterval = setInterval(randomizeBombs, 2000);
         }
+
+        
+
 
         restartButton.addEventListener('click', restartGame);
 
@@ -513,7 +530,23 @@
             startScreen.style.display = 'none';
             gameOverElement.style.display = 'none';
             document.body.style.backgroundColor = 'black'; // Assure que la couleur de fond est noire
+    
+            // Réinitialiser le score
+            score = 0;
+            scoreElement.textContent = 'Score: ' + score;
+
+            // Réinitialiser les bombes
+            randomizeBombs();
+
+            // Nettoyer l'ancien intervalle si existant
+            if (bombInterval) {
+                clearInterval(bombInterval);
+            }
+
+            // Démarrer le minuteur pour les bombes
+            bombInterval = setInterval(randomizeBombs, 2000);
         }
+
 
         // Fonction pour afficher l'écran de magasin
         function showShopScreen() {
@@ -549,7 +582,7 @@
 
         // Initialiser le jeu
         randomizeBombs();
-        bombInterval = setInterval(randomizeBombs, 3000);
+        bombInterval = setInterval(randomizeBombs, 2000);
     </script>
 </body>
 </html>
