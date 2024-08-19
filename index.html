@@ -18,9 +18,20 @@
             color: white;
             font-family: Arial, sans-serif;
         }
-        #score {
+        #user-info, #best-score {
             position: absolute;
             top: 20px;
+            font-size: 24px;
+        }
+        #user-info {
+            left: 20px;
+        }
+        #best-score {
+            right: 20px;
+        }
+        #score {
+            position: absolute;
+            top: 60px;
             font-size: 24px;
         }
         #grid-container {
@@ -70,6 +81,8 @@
     </style>
 </head>
 <body>
+    <div id="user-info"></div>
+    <div id="best-score"></div>
     <div id="score">Score: 0</div>
     <div id="grid-container">
         <div class="grid-item" data-index="0"><img class="pomme" src="pomme.png" alt="Pomme" /></div>
@@ -93,10 +106,41 @@
         let score = 0;
         let bombIndexes = [];
         const scoreElement = document.getElementById('score');
+        const userInfoElement = document.getElementById('user-info');
+        const bestScoreElement = document.getElementById('best-score');
         const gridItems = document.querySelectorAll('.grid-item');
         const gameOverElement = document.getElementById('game-over');
         const finalScoreElement = document.getElementById('final-score');
         const restartButton = document.getElementById('restart');
+
+        // Fonction pour obtenir ou définir l'username
+        function getUsername() {
+            let username = localStorage.getItem('username');
+            if (!username) {
+                username = prompt("Entrez votre nom d'utilisateur:");
+                if (username) {
+                    localStorage.setItem('username', username);
+                } else {
+                    username = "Joueur"; // Valeur par défaut si l'utilisateur annule
+                }
+            }
+            return username;
+        }
+
+        // Fonction pour obtenir ou définir le meilleur score
+        function getBestScore() {
+            return parseInt(localStorage.getItem('bestScore')) || 0;
+        }
+
+        function setBestScore(newBestScore) {
+            localStorage.setItem('bestScore', newBestScore);
+        }
+
+        // Initialisation
+        const username = getUsername();
+        let bestScore = getBestScore(); // Utilisation d'un "let" pour pouvoir le modifier
+        userInfoElement.textContent = `Nom: ${username}`;
+        bestScoreElement.textContent = `Best Score: ${bestScore}`;
 
         // Fonction pour transformer 3 pommes en bombes aléatoirement
         function randomizeBombs() {
@@ -105,7 +149,7 @@
                 gridItems[index].querySelector('img').classList.remove('bombe');
                 gridItems[index].querySelector('img').classList.add('pomme');
             });
-            
+
             bombIndexes = [];
             while (bombIndexes.length < 3) {
                 const randomIndex = Math.floor(Math.random() * 9);
@@ -147,6 +191,14 @@
         function gameOver() {
             gameOverElement.style.display = 'flex';
             finalScoreElement.textContent = 'Score Final: ' + score;
+
+            // Vérifier si c'est le meilleur score
+            if (score > bestScore) {
+                bestScore = score; // Met à jour la variable bestScore
+                setBestScore(bestScore);
+                bestScoreElement.textContent = `Best Score: ${bestScore}`;
+            }
+
             clearInterval(bombInterval);
         }
 
