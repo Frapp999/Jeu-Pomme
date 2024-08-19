@@ -85,7 +85,7 @@
             text-align: center;
             z-index: 10;
         }
-        #restart {
+        #game-over button {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 24px;
@@ -94,6 +94,37 @@
             color: black;
             border: none;
             border-radius: 5px;
+        }
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+        }
+        #start-screen h1 {
+            font-size: 48px;
+            margin-bottom: 40px;
+        }
+        #start-screen button {
+            padding: 10px 20px;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: white;
+            color: black;
+            border: none;
+            border-radius: 5px;
+        }
+        #total-apples-start img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
         }
         /* Animation pour le +1 */
         @keyframes flyUp {
@@ -139,6 +170,18 @@
         <div>Game Over</div>
         <div id="final-score"></div>
         <button id="restart">Restart</button>
+        <button id="quit">Quitter</button>
+    </div>
+
+    <div id="start-screen">
+        <h1>Monster Tree</h1>
+        <div id="user-info-start"></div>
+        <div id="best-score-start"></div>
+        <div id="total-apples-start">
+            <img src="pomme.png" alt="Pomme">
+            <span id="total-apples-count-start">0</span>
+        </div>
+        <button id="play">Play</button>
     </div>
 
     <script>
@@ -152,6 +195,9 @@
         const gameOverElement = document.getElementById('game-over');
         const finalScoreElement = document.getElementById('final-score');
         const restartButton = document.getElementById('restart');
+        const quitButton = document.getElementById('quit');
+        const startScreen = document.getElementById('start-screen');
+        const playButton = document.getElementById('play');
 
         // Fonction pour obtenir ou définir l'username
         function getUsername() {
@@ -192,6 +238,13 @@
         userInfoElement.textContent = `Nom: ${username}`;
         bestScoreElement.textContent = `Best Score: ${bestScore}`;
         totalApplesElement.textContent = totalApples;
+
+        // Mise à jour de l'écran de démarrage
+        function updateStartScreen() {
+            document.getElementById('user-info-start').textContent = `Nom: ${username}`;
+            document.getElementById('best-score-start').textContent = `Best Score: ${bestScore}`;
+            document.getElementById('total-apples-count-start').textContent = totalApples;
+        }
 
         // Fonction pour transformer 3 pommes en bombes aléatoirement
         function randomizeBombs() {
@@ -286,8 +339,26 @@
             bombInterval = setInterval(randomizeBombs, 2000); // 2 secondes
         }
 
-        // Associer le bouton restart à la fonction restartGame
+        // Fonction pour revenir au menu principal
+        function quitGame() {
+            gameOverElement.style.display = 'none';
+            startScreen.style.display = 'flex';
+            updateStartScreen(); // Met à jour les infos de l'écran de démarrage
+        }
+
+        // Fonction pour démarrer le jeu
+        function startGame() {
+            startScreen.style.display = 'none';
+            score = 0; // Réinitialiser le score
+            scoreElement.textContent = 'Score: ' + score;
+            randomizeBombs();
+            bombInterval = setInterval(randomizeBombs, 2000); // 2 secondes
+        }
+
+        // Associer les boutons aux fonctions
         restartButton.addEventListener('click', restartGame);
+        quitButton.addEventListener('click', quitGame);
+        playButton.addEventListener('click', startGame);
 
         // Initialiser le premier set de bombes et démarrer le timer
         randomizeBombs();
