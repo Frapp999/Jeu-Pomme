@@ -142,7 +142,7 @@
             height: 100px;
             background-color: #444;
             border: 2px solid white;
-            border-radius: 10px;
+            border-radius: 2px;
             cursor: pointer;
             font-size: 14px;
             text-align: center;
@@ -154,14 +154,58 @@
             height: 60px;
             margin-bottom: 10px;
         }
-		.pomme-prix img {
-            position: absolute; /* Positionne l'image de façon absolue par rapport au conteneur */
-            top: 59%; /* Positionne l'image à 50% du conteneur */
-            left: 45%; /* Positionne l'image à 50% du conteneur */
-            transform: translate(-50%, -50%);
-            width: 16px;
-            height: 16px;
+		.pomme-prix {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centre tout le contenu horizontalement */
+            text-align: center; /* Centre le texte */
         }
+        
+        .text-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Aligne le texte à droite */
+            margin-right: 8px; /* Espacement entre le texte et l'image */
+        }
+        
+        .price-container {
+            display: flex;
+            align-items: flex-end; /* Aligne le texte et l'image de la pomme au bas */
+            position: relative;
+        }
+        
+        .price {
+            font-size: 16px; /* Ajustez la taille du texte si nécessaire */
+            margin-right: 0px; /* Espacement entre le texte et l'image */
+        }
+        
+        .pomme-image {
+            width: 16px; /* Ajustez la taille de l'image si nécessaire */
+            height: 16px; /* Ajustez la taille de l'image si nécessaire */
+            position: absolute;
+            right: -24px; /* Décale la pomme à droite du texte */
+            top: 45%; /* Positionne la pomme à mi-hauteur du texte */
+            transform: translateY(-50%); /* Ajuste la position verticale de la pomme */
+        }
+
+        
+        .text-container {
+            display: flex;
+            flex-direction: column;
+            margin-right: 4px; /* Espace entre le texte et l'image */
+            align-items: center; /* Centre le texte horizontalement */
+        }
+        
+        .pomme-prix span {
+            display: block;
+        }
+        
+        .pomme-prix img {
+            width: 16px; /* Ajustez la taille de l'image si nécessaire */
+            height: 16px; /* Ajustez la taille de l'image si nécessaire */
+        }
+
+
         .alert {
             position: absolute;
             top: 0;
@@ -289,11 +333,16 @@
         <div id="shop-carousel">
             <div class="shop-button" data-price="50000" data-name="aubergine">
                 <img src="aubergine.png" alt="Aubergine">
-                <div>Coming Soon<br>10 000</div>
-				</div>
-				<div class="pomme-prix">
-                <img src="pomme.png" alt="Pomme">
-            </div>
+                <div class="pomme-prix">
+                    <div class="text-container">
+                        <span class="coming-soon">Coming Soon</span>
+                        <div class="price-container">
+                            <span class="price">10 000</span>
+                            <img class="pomme-image" src="pomme.png" alt="Pomme">
+                        </div>
+                    </div>
+                </div>
+            </div>    
             <div class="shop-button" data-price="50000" data-name="fraise">
                 <img src="fraise.png" alt="Fraise">
                 <div>Acheter pour<br>X</div>
@@ -316,8 +365,8 @@
             </div>
         </div>
 
-        <button id="prev-item">🢀</button>
-        <button id="next-item">🢂</button>
+        <button id="prev-item"> < </button>
+        <button id="next-item"> > </button>
         <button id="back-to-menu">Retour</button>
 		
         <div class="alert" id="alert-message">
