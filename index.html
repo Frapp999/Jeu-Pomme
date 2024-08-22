@@ -144,7 +144,7 @@
             border: 2px solid white;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             text-align: center;
             color: white;
             position: relative;
@@ -153,6 +153,14 @@
             width: 60px;
             height: 60px;
             margin-bottom: 10px;
+        }
+		.pomme-prix img {
+            position: absolute; /* Positionne l'image de façon absolue par rapport au conteneur */
+            top: 59%; /* Positionne l'image à 50% du conteneur */
+            left: 45%; /* Positionne l'image à 50% du conteneur */
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
         }
         .alert {
             position: absolute;
@@ -192,11 +200,42 @@
         }
         .plus-one {
             position: absolute;
-            color: yellow;
+            color: blue;
             font-size: 20px;
             animation: flyUp 1s ease-out forwards;
             pointer-events: none;
         }
+		#shop-carousel {
+            display: flex;
+            overflow: hidden;
+            width: 355px;
+        }
+        
+        .shop-button {
+            flex: 0 0 100px; /* Ajustez la largeur selon vos besoins */
+            margin-right: 20px;
+            transition: transform 0.5s ease;
+        }
+
+        #prev-item, #next-item {
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #prev-item {
+            left: 20px;
+        }
+
+        #next-item {
+            right: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -245,11 +284,40 @@
             <img src="pomme.png" alt="Pomme">
             <span id="total-apples-count-shop">0</span>
         </div>
-        <div class="shop-button" id="buy-aubergine">
-            <img src="aubergine.png" alt="Aubergine">
-            <div>Acheter pour<br>10 000</div>
+        <div id="shop-carousel">
+            <div class="shop-button" data-price="50000" data-name="aubergine">
+                <img src="aubergine.png" alt="Aubergine">
+                <div>Coming Soon<br>10 000</div>
+				</div>
+				<div class="pomme-prix">
+                <img src="pomme.png" alt="Pomme">
+            </div>
+            <div class="shop-button" data-price="50000" data-name="fraise">
+                <img src="fraise.png" alt="Fraise">
+                <div>Acheter pour<br>X</div>
+            </div>
+            <div class="shop-button" data-price="50000" data-name="tomate">
+                <img src="tomate.png" alt="Tomate">
+                <div>Acheter pour<br>X</div>
+            </div>
+            <div class="shop-button" data-price="50000" data-name="cannesucre">
+                <img src="cannesucre.png" alt="Canne à Sucre">
+                <div>Acheter pour<br>X</div>
+            </div>
+            <div class="shop-button" data-price="50000" data-name="poivron">
+                <img src="poivron.png" alt="Poivron">
+                <div>Acheter pour<br>X</div>
+            </div>
+            <div class="shop-button" data-price="50000" data-name="framboise">
+                <img src="framboise.png" alt="Framboise">
+                <div>Acheter pour<br>X</div>
+            </div>
         </div>
+
+        <button id="prev-item">🢀</button>
+        <button id="next-item">🢂</button>
         <button id="back-to-menu">Retour</button>
+		
         <div class="alert" id="alert-message">
             <div>Pas assez de pommes pour acheter l'aubergine.</div>
             <button id="alert-ok">OK</button>
@@ -429,63 +497,10 @@
                         imgElement.style.opacity = '1';
                     }, 500);
 
-                    // Si l'aubergine a été achetée, gérer les aubergines aléatoires
-                    if (hasAubergine) {
-                        randomizeAubergines();
-                    }
                 }
             });
         });
 
-        // Fonction pour gérer les aubergines
-        function randomizeAubergines() {
-            // Supprimer les aubergines existantes
-            document.querySelectorAll('.aubergine').forEach(el => el.remove());
-
-            // Ajouter de 0 à 3 aubergines aléatoires
-            const aubergineCount = Math.floor(Math.random() * 4);
-            for (let i = 0; i < aubergineCount; i++) {
-                let index;
-                do {
-                    index = Math.floor(Math.random() * 9);
-                } while (bombIndexes.includes(index));
-
-                const item = gridItems[index];
-                const aubergine = document.createElement('img');
-                aubergine.src = 'aubergine.png';
-                aubergine.classList.add('aubergine');
-                aubergine.style.width = '80%';
-                aubergine.style.height = '80%';
-                aubergine.style.cursor = 'pointer';
-                item.appendChild(aubergine);
-
-                aubergine.addEventListener('click', function() {
-                    // Ajouter 10 points et supprimer l'aubergine
-                    score += 10;
-                    scoreElement.textContent = 'Score: ' + score;
-
-                    // Créer l'élément +10
-                    const plusTen = document.createElement('div');
-                    plusTen.textContent = '+10';
-                    plusTen.classList.add('plus-one');
-                    item.appendChild(plusTen);
-
-                    // Positionner le +10 au-dessus de l'aubergine cliquée
-                    const rect = aubergine.getBoundingClientRect();
-                    const xOffset = (rect.width - plusTen.clientWidth) / 2;
-                    const yOffset = -rect.height / 2;
-                    plusTen.style.left = xOffset + 'px';
-                    plusTen.style.top = yOffset + 'px';
-
-                    // Supprimer l'élément après l'animation
-                    setTimeout(() => {
-                        plusTen.remove();
-                    }, 1000);
-
-                    aubergine.remove();
-                });
-            }
-        }
 
         // Fonction Game Over
         function gameOver() {
@@ -593,17 +608,52 @@
             updateStartScreen();
         });
 
-        buyAubergineButton.addEventListener('click', function() {
-            if (totalApples >= 10000) {
-                totalApples -= 10000;
-                setTotalApples(totalApples);
-                totalApplesShopElement.textContent = totalApples;
-                hasAubergine = true;
-                alert('Aubergine achetée avec succès !');
-            } else {
-                alertMessage.style.display = 'flex';
+        let currentShopIndex = 0;
+        const shopItems = document.querySelectorAll('.shop-button');
+        
+        function updateShopCarousel() {
+            shopItems.forEach((item, index) => {
+                item.style.transform = `translateX(-${currentShopIndex * 0}px)`;
+                item.style.display = (index >= currentShopIndex && index < currentShopIndex + 3) ? 'flex' : 'none';
+            });
+        }
+        
+        document.getElementById('prev-item').addEventListener('click', () => {
+            if (currentShopIndex > 0) {
+                currentShopIndex--;
+                updateShopCarousel();
             }
         });
+        
+        document.getElementById('next-item').addEventListener('click', () => {
+            if (currentShopIndex < shopItems.length - 1) {
+                currentShopIndex++;
+                updateShopCarousel();
+            }
+        });
+        
+        document.querySelectorAll('.shop-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const price = parseInt(button.getAttribute('data-price'));
+                const name = button.getAttribute('data-name');
+        
+                if (totalApples >= price) {
+                    totalApples -= price;
+                    setTotalApples(totalApples);
+                    totalApplesShopElement.textContent = totalApples;
+                    alert(`${name.charAt(0).toUpperCase() + name.slice(1)} achetée avec succès !`);
+                } else {
+                    alertMessage.style.display = 'flex';
+                }
+            });
+        });
+        
+        alertOkButton.addEventListener('click', function() {
+            alertMessage.style.display = 'none';
+        });
+        
+        updateShopCarousel();
+
 
         alertOkButton.addEventListener('click', function() {
             alertMessage.style.display = 'none';
